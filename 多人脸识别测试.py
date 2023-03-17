@@ -22,7 +22,7 @@ def load_faces(folder_path):
         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
         # 数据增强
-        for angle in [0, 15, -15, 20, -20, 30, -30, 25, -25]:
+        for angle in [0, 5, -5, 10, -10, 15, -15, 20, -20, 30, -30, 25, -25, 35, -35, 40, -40]:
             # 显示检测图片次数
             print('检测次数：%d' % i)
             i = i + 1
