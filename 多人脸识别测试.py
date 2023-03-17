@@ -15,12 +15,18 @@ labels = []
 
 # 加载指定文件夹内的所有人脸图片作为训练数据
 def load_faces(folder_path):
+    i = 1
     for filename in os.listdir(folder_path):
         image = cv2.imread(os.path.join(folder_path, filename))
+        image = cv2.resize(image, (231, 308)) # 将图像缩小到 800*600 的大小
         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+
         # 数据增强
-        for angle in [0, 15, -15, 30,-30]:
-            print('检测一次')
+        for angle in [0, 15, -15, 20, -20, 30, -30, 25, -25]:
+            # 显示检测图片次数
+            print('检测次数：%d' % i)
+            i = i + 1
+
             rows, cols = gray.shape
             M = cv2.getRotationMatrix2D((cols/2, rows/2), angle, 1)
             rotated_gray = cv2.warpAffine(gray, M, (cols, rows))

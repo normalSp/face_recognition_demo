@@ -4,11 +4,12 @@ import cv2
 face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades+'haarcascade_frontalface_alt2.xml')
 
 # 加载图像并进行灰度化处理
-image = cv2.imread("D:/Art/faces/wht.jpg")
+image = cv2.imread("D:/Art/faces/wht10.jpg")
+image = cv2.resize(image, (231, 308)) # 将图像缩小到 800*600 的大小
 gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
 # 进行人脸检测
-faces = face_cascade.detectMultiScale(gray, scaleFactor=1.01, minNeighbors=3, minSize=(60, 60))
+faces = face_cascade.detectMultiScale(gray, scaleFactor=1.01, minNeighbors=3, minSize=(30, 30))
 
 # 在图像中标记人脸
 for (x, y, w, h) in faces:
