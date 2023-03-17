@@ -19,7 +19,8 @@ def load_faces(folder_path):
         image = cv2.imread(os.path.join(folder_path, filename))
         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
         # 数据增强
-        for angle in [0, 15, -15]:
+        for angle in [0, 15, -15, 30,-30]:
+            print('检测一次')
             rows, cols = gray.shape
             M = cv2.getRotationMatrix2D((cols/2, rows/2), angle, 1)
             rotated_gray = cv2.warpAffine(gray, M, (cols, rows))
