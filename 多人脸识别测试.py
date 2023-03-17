@@ -2,6 +2,7 @@ import os
 import cv2
 import numpy as np
 
+
 # 加载人脸检测器
 face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades+'haarcascade_frontalface_alt2.xml')
 
@@ -17,11 +18,16 @@ def load_faces(folder_path):
     for filename in os.listdir(folder_path):
         image = cv2.imread(os.path.join(folder_path, filename))
         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-        faces = face_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=3, minSize=(30, 30))
-        for (x, y, w, h) in faces:
-            face_image = cv2.resize(gray[y:y+h, x:x+w], (100, 100)) # 将人脸剪切区域调整为相同的大小
-            face_images.append(face_image)
-            labels.append(os.path.splitext(filename)[0]) # 以图片文件名为每个人脸分配唯一标签
+        # 数据增强
+        for angle in [0, 15, -15]:
+            rows, cols = gray.shape
+            M = cv2.getRotationMatrix2D((cols/2, rows/2), angle, 1)
+            rotated_gray = cv2.warpAffine(gray, M, (cols, rows))
+            faces = face_cascade.detectMultiScale(rotated_gray, scaleFactor=1.1, minNeighbors=3, minSize=(30, 30))
+            for (x, y, w, h) in faces:
+                face_image = cv2.resize(rotated_gray[y:y+h, x:x+w], (100, 100)) # 将人脸剪切区域调整为相同的大小
+                face_images.append(face_image)
+                labels.append(os.path.splitext(filename)[0]) # 以图片文件名为每个人脸分配唯一标签
 
     label_dict = {}
     label_num = 0
@@ -43,11 +49,17 @@ while True:
 
     # 进行人脸检测
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    # 多尺度检测
     faces = face_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=3, minSize=(30, 30))
 
     # 对每个人脸进行识别并在图像中标记
     for (x, y, w, h) in faces:
-        face_image = cv2.resize(gray[y:y+h, x:x+w], (100, 100)) # 将人脸剪切区域调整为相同的大小
+        # 人脸对齐
+        face_center = (int(x + w//2), int(y + h//2))
+        M = cv2.getRotationMatrix2D(face_center, 0, 1)
+        rows, cols = gray.shape
+        rotated_gray = cv2.warpAffine(gray, M, (cols, rows))
+        face_image = cv2.resize(rotated_gray[y:y+h, x:x+w], (100, 100)) # 将人脸剪切区域调整为相同的大小
         label, confidence = recognizer.predict(face_image)
         if confidence < 100:
             name = labels[label]

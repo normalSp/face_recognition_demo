@@ -4,7 +4,7 @@ import cv2
 face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades+'haarcascade_frontalface_alt2.xml')
 
 # 加载图像并进行灰度化处理
-image = cv2.imread("D:/Art/09EFAAF66DBA2DB784AA3E0BF8E4D2DE.png")
+image = cv2.imread("D:/Art/faces/wht.jpg")
 gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
 # 进行人脸检测
