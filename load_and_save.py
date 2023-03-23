@@ -2,7 +2,6 @@ import os
 import pickle
 
 import cv2
-import numpy as np
 
 # 加载人脸检测器
 face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_alt2.xml')
@@ -22,13 +21,9 @@ def load_faces(folder_path, save_path_faces_images, save_path_labels):
     # 命名训练集
     face_images = []
     labels = []
-    # 遍历文件夹内所有图像
     for filename in os.listdir(folder_path):
         image = cv2.imread(os.path.join(folder_path, filename))
-        if image is None:
-            print(f"Failed to load image: {filename}")
-            continue
-        image = cv2.resize(image, (231, 308))  # 将图像缩小到 231*308 （手机照片1/10） 的大小
+        image = cv2.resize(image, (231, 308))  # 将图像缩小到 800*600 的大小
         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
         # 数据增强
@@ -39,11 +34,12 @@ def load_faces(folder_path, save_path_faces_images, save_path_labels):
 
             rows, cols = gray.shape
             M = cv2.getRotationMatrix2D((cols / 2, rows / 2), angle, 1)
-            dst = cv2.warpAffine(gray, M, (cols, rows))
-
-            # 将处理后的图片加入列表
-            face_images.append(np.array(dst))
-            labels.append(os.path.splitext(filename)[0])
+            rotated_gray = cv2.warpAffine(gray, M, (cols, rows))
+            faces = face_cascade.detectMultiScale(rotated_gray, scaleFactor=1.1, minNeighbors=3, minSize=(30, 30))
+            for (x, y, w, h) in faces:
+                face_image = cv2.resize(rotated_gray[y:y + h, x:x + w], (100, 100))  # 将人脸剪切区域调整为相同的大小
+                face_images.append(face_image)
+                labels.append(os.path.splitext(filename)[0])  # 以图片文件名为每个人脸分配唯一标签
 
     # 将人脸数据和标签保存到文件
     with open(save_path_faces_images, 'wb') as f:
@@ -53,23 +49,6 @@ def load_faces(folder_path, save_path_faces_images, save_path_labels):
         pickle.dump(labels, f)
 
     print('人脸数据加载完成')
-
-
-# 加载人脸信息文件
-def load_file_images(save_path_faces_images, save_path_labels):
-    with open(save_path_faces_images, 'rb') as f:
-        face_images = pickle.load(f)
-
-    return face_images
-
-def load_file(save_path_faces_images, save_path_labels):
-    with open(save_path_faces_images, 'rb') as f:
-        face_images = pickle.load(f)
-
-    with open(save_path_labels, 'rb') as f:
-        labels = pickle.load(f)
-
-    return face_images, labels
 
 
 load_faces('D:/Art/faces', 'D:/Art/save/face_images', 'D:/Art//save/labels')

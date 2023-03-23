@@ -17,7 +17,6 @@ with open('D:/Art/save/labels', 'rb') as f:
 
 face_images = list(face_images_)
 labels = list(labels_)
-
 print('加载images与labels完成，开始训练模型')
 
 # 训练模型
