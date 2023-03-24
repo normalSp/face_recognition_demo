@@ -11,12 +11,9 @@ recognizer = cv2.face.LBPHFaceRecognizer_create()
 
 # 加载images和labels
 with open('D:/Art/save/face_images', 'rb') as f:
-    face_images_ = pickle.load(f)
+    face_images = pickle.load(f)
 with open('D:/Art/save/labels', 'rb') as f:
-    labels_ = pickle.load(f)
-
-face_images = list(face_images_)
-labels = list(labels_)
+    labels = pickle.load(f)
 print('加载images与labels完成，开始训练模型')
 
 # 训练模型
