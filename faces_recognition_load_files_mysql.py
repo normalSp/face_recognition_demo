@@ -32,7 +32,7 @@ print('训练模型完成')
 def connect_to_mysql():
     # 请在此处填写您的数据库连接信息
     connection = mysql.connector.connect(
-        host="localhost",
+        host="192.168.91.1",
         user="root",
         password="Aa565034470",
         database="tyq"
@@ -114,6 +114,7 @@ def face_recognition(attendees_list):
 
         # 按下 q 键退出循环
         if cv2.waitKey(1) & 0xFF == ord('q'):
+            print('摄像头关闭')
             break
 
 
@@ -128,3 +129,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+    print('成功退出')

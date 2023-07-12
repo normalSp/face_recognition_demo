@@ -35,6 +35,7 @@ def load_faces(folder_path, save_path_faces_images, save_path_labels):
             rows, cols = gray.shape
             M = cv2.getRotationMatrix2D((cols / 2, rows / 2), angle, 1)
             rotated_gray = cv2.warpAffine(gray, M, (cols, rows))
+
             faces = face_cascade.detectMultiScale(rotated_gray, scaleFactor=1.1, minNeighbors=3, minSize=(30, 30))
             for (x, y, w, h) in faces:
                 face_image = cv2.resize(rotated_gray[y:y + h, x:x + w], (100, 100))  # 将人脸剪切区域调整为相同的大小
