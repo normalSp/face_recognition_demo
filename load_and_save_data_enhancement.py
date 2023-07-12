@@ -21,6 +21,9 @@ def load_faces(folder_path, save_path_faces_images, save_path_labels):
     # 数据增强参数
     flip_prob = 0.5
     scale_range = (0.9, 1.1)
+    brightness_range = (-30, 30)  # 亮度调整范围
+    contrast_range = (0.8, 1.2)  # 对比度调整范围
+    blur_kernel_size = (5, 5)  # 模糊核大小
 
     # 命名训练集
     face_images = []
@@ -49,6 +52,17 @@ def load_faces(folder_path, save_path_faces_images, save_path_labels):
             resized_gray = cv2.resize(rotated_gray, None, fx=scale_factor, fy=scale_factor)
             resized_gray = cv2.cvtColor(resized_gray, cv2.COLOR_GRAY2RGB)
 
+            # 亮度调整
+            brightness = np.random.uniform(brightness_range[0], brightness_range[1])
+            adjusted_gray = cv2.convertScaleAbs(resized_gray, beta=brightness)
+
+            # 对比度调整
+            contrast = np.random.uniform(contrast_range[0], contrast_range[1])
+            adjusted_gray = cv2.convertScaleAbs(adjusted_gray, alpha=contrast)
+
+            # 模糊
+            blurred_gray = cv2.GaussianBlur(resized_gray, blur_kernel_size, 0)
+
             faces = face_cascade.detectMultiScale(rotated_gray, scaleFactor=1.1, minNeighbors=3, minSize=(30, 30))
             for (x, y, w, h) in faces:
                 face_image = cv2.resize(rotated_gray[y:y + h, x:x + w], (100, 100))  # 将人脸剪切区域调整为相同的大小
@@ -65,4 +79,4 @@ def load_faces(folder_path, save_path_faces_images, save_path_labels):
     print('人脸数据加载完成')
 
 
-load_faces(r'D:/Art/faces', r'D:/Art/save/face_images', r'D:/Art//save/labels')
+load_faces(r'D:/Art/faces', r'D:/Art/save/face_images.pkl', r'D:/Art/save/labels.pkl')

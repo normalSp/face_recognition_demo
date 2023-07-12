@@ -11,9 +11,9 @@ face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_fronta
 recognizer = cv2.face.LBPHFaceRecognizer_create()
 
 # 加载images和labels
-with open('D:/Art/save/face_images', 'rb') as f:
+with open('D:/Art/save/face_images.pkl', 'rb') as f:
     face_images = pickle.load(f)
-with open('D:/Art/save/labels', 'rb') as f:
+with open('D:/Art/save/labels.pkl', 'rb') as f:
     labels = pickle.load(f)
 print('加载images与labels完成，开始训练模型')
 
