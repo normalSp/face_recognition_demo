@@ -78,5 +78,4 @@ def load_faces(folder_path, save_path_faces_images, save_path_labels):
 
     print('人脸数据加载完成')
 
-
 load_faces(r'D:/Art/faces', r'D:/Art/save/face_images.pkl', r'D:/Art/save/labels.pkl')
