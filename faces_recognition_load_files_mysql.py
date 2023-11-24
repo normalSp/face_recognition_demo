@@ -32,10 +32,10 @@ print('训练模型完成')
 def connect_to_mysql():
     # 请在此处填写您的数据库连接信息
     connection = mysql.connector.connect(
-        host="localhost",
+        host="192.168.1.103",
         user="root",
-        password="Aa565034470",
-        database="tyq"
+        password="tyq030420!",
+        database="immstest"
     )
     return connection
 
@@ -45,7 +45,7 @@ def get_attendees_list(meeting_id):
     cursor = connection.cursor()
 
     # 根据会议号查询参会人员名单
-    query = f"SELECT userId FROM checkList WHERE meetingId = {meeting_id}"
+    query = f"SELECT userId FROM participate WHERE meetingId = {meeting_id}"
     cursor.execute(query)
 
     attendees_list = [row[0] for row in cursor.fetchall()]
@@ -55,43 +55,29 @@ def get_attendees_list(meeting_id):
     return attendees_list
 
 
-def update_attendance_status(attendee_name):
+def update_attendance_status(attendee_name, recognition_frequency_dect):
     connection = connect_to_mysql()
     cursor = connection.cursor()
 
-    # 使用正则表达式去掉[]
-    print(attendee_name)
-
-    # 将参会人员的是否参会项置为1
-    query = f"UPDATE checkList SET attend = 1 WHERE userId = '{attendee_name}'"
-    cursor.execute(query)
-    connection.commit()
-
-    cursor.close()
-    connection.close()
-
-#检查该用户签到与否
-def select_user_if_attendance(user_id):
-    connection = connect_to_mysql()
-    cursor = connection.cursor()
-
-    query = f"select userId from checkList where attend = 1 && userId = '{user_id}'"
-    cursor.execute(query)
-    result = cursor.fetchall()
-    if user_id in result:
+    if recognition_frequency_dect[attendee_name] > 20:
+        # 将参会人员的是否参会项置为1
+        query = f"UPDATE participate SET isAttend = 1 WHERE userId = '{attendee_name}'"
+        cursor.execute(query)
         connection.commit()
 
         cursor.close()
         connection.close()
-
-        return True
-    return False
-
-
+        print("用户 ", attendee_name, " 已签到")
+        recognition_frequency_dect[attendee_name] = -9999999999999
 
 def face_recognition(attendees_list):
     cap = cv2.VideoCapture(0)
     print('摄像头开启')
+
+    # 识别次数
+    recognition_frequency = [0] * len(attendees_list)
+    recognition_frequency_dect = {attendees_list: recognition_frequency for attendees_list, recognition_frequency in
+                                  zip(attendees_list, recognition_frequency)}
 
     while True:
         # 读取摄像头捕获的图像
@@ -103,6 +89,7 @@ def face_recognition(attendees_list):
         faces = face_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=3, minSize=(30, 30))
 
         recognized_name = None
+
         # 对每个人脸进行识别并在图像中标记
         for (x, y, w, h) in faces:
             # 人脸对齐
@@ -113,7 +100,7 @@ def face_recognition(attendees_list):
             # 将人脸剪切区域调整为相同的大小
             face_image = cv2.resize(rotated_gray[y:y + h, x:x + w], (100, 100))
             label, confidence = recognizer.predict(face_image)
-            print(label,  confidence)
+            #print(label, confidence)
             if confidence < 90:
                 name = labels[label]
                 cv2.putText(frame, name, (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 255, 0), 2)
@@ -121,11 +108,11 @@ def face_recognition(attendees_list):
                 name = int(name)
                 if name in attendees_list:
                     recognized_name = name
-                    update_attendance_status(recognized_name)
-                    print("用户 ", recognized_name, " 已签到")
+                    recognition_frequency_dect[name] = recognition_frequency_dect[name] + 1
+                    update_attendance_status(recognized_name, recognition_frequency_dect)
             else:
                 cv2.putText(frame, "Unknown", (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 0, 255), 2)
-            cv2.rectangle(frame, (x, y), (x+ w, y + h), (255, 0, 0), 2)
+            cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 0, 0), 2)
 
         # 显示图像
         cv2.imshow('frame', frame)
@@ -135,16 +122,21 @@ def face_recognition(attendees_list):
             print('摄像头关闭')
             break
 
-
     # 释放资源
     cap.release()
     cv2.destroyAllWindows()
+
 
 def main():
     meeting_id = input('请输入会议号：')
     attendees_list = get_attendees_list(meeting_id)
     print("参会id名单：", attendees_list)
+    # 识别次数
+    recognition_frequency = [0] * len(attendees_list)
+    recognition_frequency_dect = {attendees_list: recognition_frequency for attendees_list, recognition_frequency in
+                                  zip(attendees_list, recognition_frequency)}
     face_recognition(attendees_list)
+
 
 if __name__ == "__main__":
     main()
