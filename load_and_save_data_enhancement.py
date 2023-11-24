@@ -17,6 +17,15 @@ def load_faces(folder_path, save_path_faces_images, save_path_labels):
                     60, -60]
     angle_rows_2 = [2.5, -2.5, 7.5, -7.5, 12.5, -12.5, 17.5, -17.5, 22.5, -22.5, 27.5, -27.5, 32.5, -32.5, 37.5, -37.5]
     angle_rows_3 = [42.5, -42.5, 47.5, -47.5, 52.5, -52.5, 57.5, -57.5]
+    angle_rows_4 = [62.5, -62.5, 65, -65, 67.5, -67.5, 70, -70, 72.5, -72.5, 75, -75, 77.5, -77.5, 80, -80, 82.5, -82.5]
+    angle_rows_5 = [85, -85, 87.5, -87.5, 90, -90]
+    angle_rows_6 = [92.5, -92.5, 95, -95, 97.5, -97.5, 100, -100, 102.5, -102.5, 105, -105, 107.5, -107.5, 110, -110]
+    angle_rows_7 = [112.5, -112.5, 115.0, -115.0, 117.5, -117.5, 120.0, -120.0, 122.5, -122.5, 125.0, -125.0, 127.5,
+                    -127.5, 130.0]
+    angle_rows_8 = [-130.0, 132.5, -132.5, 135.0, -135.0, 137.5, -137.5, 140.0, -140.0, 142.5, -142.5,
+                    145.0, -145.0, 147.5, -147.5, 150.0, -150.0, 152.5, -152.5, 155.0, -155.0, 157.5, -157.5, 160.0,
+                    -160.0, 162.5, -162.5, 165.0, -165.0, 167.5, -167.5, 170.0, -170.0, 172.5, -172.5, 175.0, -175.0,
+                    177.5, -177.5, 180.0, -180.0]
 
     # 数据增强参数
     flip_prob = 0.5
@@ -34,7 +43,7 @@ def load_faces(folder_path, save_path_faces_images, save_path_labels):
         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
         # 数据增强
-        for angle in angle_rows_1 + angle_rows_2 + angle_rows_3:
+        for angle in angle_rows_1 + angle_rows_2 + angle_rows_3 + angle_rows_4 + angle_rows_5 + angle_rows_6 + angle_rows_7:
             # 显示检测图片次数
             print('检测次数：%d' % i)
             i += 1
@@ -77,5 +86,6 @@ def load_faces(folder_path, save_path_faces_images, save_path_labels):
         pickle.dump(labels, f)
 
     print('人脸数据加载完成')
+
 
 load_faces(r'D:/Art/faces', r'D:/Art/save/face_images.pkl', r'D:/Art/save/labels.pkl')

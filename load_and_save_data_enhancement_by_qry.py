@@ -104,4 +104,4 @@ def load_faces(folder_path, save_path_faces_images, save_path_labels):
 
     print('人脸数据加载完成')
 
-load_faces(r'F:/faceidentify_demo/train_image', r'F:/faceidentify_demo/save/face_images2.pkl', r'F:/faceidentify_demo/save/labels2.pkl')
+load_faces(r'D:/Art/faces', r'D:/Art/save/face_images.pkl', r'D:/Art/save/labels.pkl')

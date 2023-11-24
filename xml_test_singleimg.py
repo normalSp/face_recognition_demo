@@ -1,6 +1,6 @@
 import cv2
 
-detector = cv2.CascadeClassifier('D:\\Java\\xml_train\\xml_ok\\900p_54n_cat\\cascade.xml')  # 分类器位置
+detector = cv2.CascadeClassifier('D:\\Java\\xml_train\\xml\\cascade.xml')  # 分类器位置
 image_path = 'D:\\Java\\face_img\\img_celeba\\img_celeba\\000129.jpg'  # 指定图片的路径
 
 img = cv2.imread(image_path)

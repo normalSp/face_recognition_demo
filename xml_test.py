@@ -1,5 +1,5 @@
 import cv2
-detector = cv2.CascadeClassifier('D:\\Java\\xml_train\\xml_ok\\920p_86n\\cascade.xml')# 分类器位置
+detector = cv2.CascadeClassifier('D:\\Java\\xml_train\\xml\\cascade.xml')# 分类器位置
 cap = cv2.VideoCapture(0)
 cap.set(1,10) #设置分辨率
 cap.set(2,10)

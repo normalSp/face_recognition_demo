@@ -32,7 +32,7 @@ print('训练模型完成')
 def connect_to_mysql():
     # 请在此处填写您的数据库连接信息
     connection = mysql.connector.connect(
-        host="192.168.91.1",
+        host="localhost",
         user="root",
         password="Aa565034470",
         database="tyq"
@@ -70,6 +70,24 @@ def update_attendance_status(attendee_name):
     cursor.close()
     connection.close()
 
+#检查该用户签到与否
+def select_user_if_attendance(user_id):
+    connection = connect_to_mysql()
+    cursor = connection.cursor()
+
+    query = f"select userId from checkList where attend = 1 && userId = '{user_id}'"
+    cursor.execute(query)
+    result = cursor.fetchall()
+    if user_id in result:
+        connection.commit()
+
+        cursor.close()
+        connection.close()
+
+        return True
+    return False
+
+
 
 def face_recognition(attendees_list):
     cap = cv2.VideoCapture(0)
@@ -95,16 +113,16 @@ def face_recognition(attendees_list):
             # 将人脸剪切区域调整为相同的大小
             face_image = cv2.resize(rotated_gray[y:y + h, x:x + w], (100, 100))
             label, confidence = recognizer.predict(face_image)
-            if confidence < 100:
+            print(label,  confidence)
+            if confidence < 90:
                 name = labels[label]
                 cv2.putText(frame, name, (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 255, 0), 2)
                 name = re.sub('[a-zA-Z_]+', '', name)
-                #name = '[{}]'.format(name)
                 name = int(name)
                 if name in attendees_list:
                     recognized_name = name
                     update_attendance_status(recognized_name)
-                    print("已签到用户id：", recognized_name)
+                    print("用户 ", recognized_name, " 已签到")
             else:
                 cv2.putText(frame, "Unknown", (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 0, 255), 2)
             cv2.rectangle(frame, (x, y), (x+ w, y + h), (255, 0, 0), 2)
@@ -125,6 +143,7 @@ def face_recognition(attendees_list):
 def main():
     meeting_id = input('请输入会议号：')
     attendees_list = get_attendees_list(meeting_id)
+    print("参会id名单：", attendees_list)
     face_recognition(attendees_list)
 
 if __name__ == "__main__":
