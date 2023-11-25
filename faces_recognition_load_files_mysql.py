@@ -3,6 +3,7 @@ import cv2
 import numpy as np
 import mysql.connector
 import re
+from PIL import Image, ImageDraw, ImageFont
 
 # 加载人脸检测器
 face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_alt2.xml')
@@ -15,9 +16,9 @@ with open('D:/Art/save/face_images.pkl', 'rb') as f:
     face_images = pickle.load(f)
 with open('D:/Art/save/labels.pkl', 'rb') as f:
     labels = pickle.load(f)
-print('加载images与labels完成，开始训练模型')
+print('打开images与labels完成，开始加载人脸数据')
 
-# 训练模型
+# 加载数据
 label_dict = {}
 label_num = 0
 for label in labels:
@@ -26,7 +27,7 @@ for label in labels:
         label_num += 1
 labels_int = [label_dict[label] for label in labels]
 recognizer.train(face_images, np.array(labels_int))
-print('训练模型完成')
+print('加载人脸数据完成')
 
 
 def connect_to_mysql():
@@ -70,6 +71,35 @@ def update_attendance_status(attendee_name, recognition_frequency_dect):
         print("用户 ", attendee_name, " 已签到")
         recognition_frequency_dect[attendee_name] = -9999999999999
 
+#传入用户ID获取用户名
+def id_to_name(user_id):
+    connection = connect_to_mysql()
+    cursor = connection.cursor()
+
+    query = f"select userName from immstest.userinfo where userId = '{user_id}'"
+    cursor.execute(query)
+    user_name = cursor.fetchone()
+
+    cursor.close()
+    connection.close()
+    return user_name
+
+
+def cv2_add_chinese_text(img, text, position, textColor=(0, 255, 0), textSize=30):
+    if isinstance(img, np.ndarray):  # 判断是否OpenCV图片类型
+        img = Image.fromarray(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
+    # 创建一个可以在给定图像上绘图的对象
+    draw = ImageDraw.Draw(img)
+    # 字体的格式
+    fontStyle = ImageFont.truetype(
+        "simsun.ttc", textSize, encoding="utf-8")
+    # 绘制文本
+    draw.text(position, text, textColor, font=fontStyle)
+    # 转换回OpenCV格式
+    return cv2.cvtColor(np.asarray(img), cv2.COLOR_RGB2BGR)
+
+
+
 def face_recognition(attendees_list):
     cap = cv2.VideoCapture(0)
     print('摄像头开启')
@@ -103,8 +133,11 @@ def face_recognition(attendees_list):
             #print(label, confidence)
             if confidence < 90:
                 name = labels[label]
-                cv2.putText(frame, name, (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 255, 0), 2)
                 name = re.sub('[a-zA-Z_]+', '', name)
+                user_name = id_to_name(name)
+                user_name = str(user_name)
+                cv2.putText(frame, user_name.strip("(')").strip("'),"), (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 255, 0), 2)
+
                 name = int(name)
                 if name in attendees_list:
                     recognized_name = name
@@ -131,10 +164,6 @@ def main():
     meeting_id = input('请输入会议号：')
     attendees_list = get_attendees_list(meeting_id)
     print("参会id名单：", attendees_list)
-    # 识别次数
-    recognition_frequency = [0] * len(attendees_list)
-    recognition_frequency_dect = {attendees_list: recognition_frequency for attendees_list, recognition_frequency in
-                                  zip(attendees_list, recognition_frequency)}
     face_recognition(attendees_list)
 
 
